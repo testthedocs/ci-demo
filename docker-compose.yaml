@@ -1,0 +1,44 @@
+# https://gist.github.com/joffilyfe/1a99250cb74bb75e29cbe8d6ca8ceedb
+version: '3'
+
+services:
+  traefik:
+    image: traefik:1.7-alpine
+    ports:
+      - 80:80
+      - 8080:8080
+    labels:
+      - "traefik.frontend.rule=Host:monitor.sven.io"
+      - "traefik.port=8080"
+      - "traefik.backend=traefik"
+      - "traefik.default.protocol=http"
+      - "traefik.enable=true"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - ./traefik/traefik.toml:/etc/traefik/traefik.toml:ro
+    # command:
+    #   - '--configFile=/etc/traefik/traefik.toml \'
+    networks:
+      - gitea-network
+
+  portainer:
+    image: portainer/portainer:latest
+    command: --admin-password "$$2y$$05$$5n9/hh1FeHpLjyYLuNDTYuRobRpoR2RAx0zxzzQPqya9aBn.aFcHq"
+    ports:
+      - 9000
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - ./data/portainer:/data
+    labels:
+      - "traefik.frontend.rule=Host:portainer.sven.io"
+      - "traefik.port=9000"
+      - "traefik.backend=portainer"
+      - "traefik.default.protocol=http"
+      - "traefik.enable=true"
+    networks:
+      - gitea-network
+
+networks:
+  gitea-network:
+    external:
+      name: gitea-network

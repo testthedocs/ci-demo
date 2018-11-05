@@ -1,0 +1,28 @@
+################################################################
+# Global configuration
+################################################################
+defaultEntryPoints = ["http"]
+[entryPoints]
+  [entryPoints.http]
+    address = ":80"
+    compress = true
+
+################################################################
+# Web configuration backend
+################################################################
+
+# Enable web configuration backend
+[web]
+address = ":8080"
+
+################################################################
+# Docker configuration backend
+################################################################
+
+# Enable Docker configuration backend
+[docker]
+endpoint = "unix:///var/run/docker.sock"
+domain = "sven.io"
+watch = true
+exposedbydefault = false
+

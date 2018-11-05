@@ -25,7 +25,7 @@ services:
     image: portainer/portainer:latest
     command: --admin-password "$$2y$$05$$5n9/hh1FeHpLjyYLuNDTYuRobRpoR2RAx0zxzzQPqya9aBn.aFcHq"
     ports:
-      - 9000
+      - 9910
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
       - ./data/portainer:/data
@@ -57,6 +57,54 @@ services:
     ports:
       - "3000:3000"
       - "222:22"
+
+  drone:
+    image: drone/drone
+    restart: always
+    depends_on:
+      - gitea
+    volumes:
+      - ./data/drone:/var/lib/drone/
+    environment:
+      - DRONE_OPEN=false
+      - DRONE_HOST=http://ci.sven.io
+      - DRONE_SECRET=foobar
+      # Gitea Config
+      - DRONE_GITEA=true
+      - DRONE_GITEA_URL=http://172.20.0.2:3000
+      - DRONE_GITEA_GIT_USERNAME=sven
+      - DRONE_GITEA_GIT_PASSWORD=gammel3
+      # Set to true to disable SSL verification.
+      - DRONE_GITEA_SKIP_VERIFY=true
+      - DRONE_NETWORK=gitea-network
+      - DRONE_SERVER_PROTO=http
+      - DRONE_ADMIN=sven
+    networks:
+      - gitea-network
+    ports:
+      - "9000"
+      - "8000:8000"
+    labels:
+      - "traefik.backend=drone"
+      - "traefik.frontend.rule=Host:ci.sven.io"
+      - "traefik.docker.network=proxy"
+      - "traefik.port=8000"
+      - "traefik.enable=true"
+      - "traefik.default.protocol=http"
+
+  drone-agent:
+    image: drone/agent
+    restart: always
+    depends_on:
+      - drone
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    environment:
+      - DRONE_SERVER=drone:9000
+      - DRONE_SECRET=foobar
+      - DRONE_MAX_PROCS=3
+    networks:
+      - gitea-network
 
 networks:
   gitea-network:

@@ -38,6 +38,26 @@ services:
     networks:
       - gitea-network
 
+  gitea:
+    image: gitea/gitea:latest
+    environment:
+      - USER_UID=1000
+      - USER_GID=1000
+    labels:
+      - "traefik.frontend.rule=Host:git.sven.io"
+      - "traefik.port=3000"
+      - "traefik.backend=git"
+      - "traefik.default.protocol=http"
+      - "traefik.enable=true"
+    restart: always
+    networks:
+      - gitea-network
+    volumes:
+      - ./data/gitea:/data
+    ports:
+      - "3000:3000"
+      - "222:22"
+
 networks:
   gitea-network:
     external:

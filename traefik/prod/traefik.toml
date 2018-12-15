@@ -1,0 +1,43 @@
+defaultEntryPoints = ["http", "https"]
+[entryPoints]
+  [entryPoints.http]
+  address = ":80"
+    [entryPoints.http.redirect]
+    entryPoint = "https"
+  [entryPoints.https]
+  address = ":443"
+    [entryPoints.https.tls]
+
+[acme]
+  email = "admin@softinnov.fr"
+  storage = "/etc/traefik/acme.json"
+  entryPoint = "https"
+[acme.httpChallenge]
+  entryPoint = "http"
+
+[[acme.domains]]
+  main = "git.softinnov.fr"
+[[acme.domains]]
+  main = "drone.softinnov.fr"
+
+[file]
+
+[backends]
+  [backends.gitea]
+    [backends.gitea.servers.server1]
+       url = "http://gitea:3000"
+  [backends.drone]
+    [backends.drone.servers.server1]
+       url = "http://drone:8000"
+
+[frontends]
+  [frontends.drone]
+      backend = "drone"
+      passHostHeader = true
+      [frontends.drone.routes.example]
+      rule = "Host:drone.softinnov.fr"
+  [frontends.gitea]
+      backend = "gitea"
+      passHostHeader = true
+      [frontends.gitea.routes.example]
+      rule = "Host:git.softinnov.fr"

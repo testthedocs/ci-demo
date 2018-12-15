@@ -1,0 +1,44 @@
+defaultEntryPoints = ["http"]
+[entryPoints]
+  [entryPoints.http]
+  address = ":80"
+
+[backends]
+  [backends.gitea]
+    [backends.gitea.servers.server1]
+       url = "http://gitea:3000"
+  [backends.drone]
+    [backends.drone.servers.server1]
+       url = "http://drone:8000"
+
+[frontends]
+  [frontends.drone]
+      backend = "drone"
+      passHostHeader = true
+      [frontends.drone.routes.example]
+      rule = "Host:0.0.0.0"
+  [frontends.gitea]
+      backend = "gitea"
+      passHostHeader = true
+      [frontends.gitea.routes.example]
+      rule = "Host:127.0.0.1"
+
+################################################################
+# Web configuration backend
+################################################################
+
+# Enable web configuration backend
+[web]
+address = ":8080"
+
+################################################################
+# Docker configuration backend
+################################################################
+
+# Enable Docker configuration backend
+[docker]
+endpoint = "unix:///var/run/docker.sock"
+domain = "sven.io"
+watch = true
+exposedbydefault = false
+

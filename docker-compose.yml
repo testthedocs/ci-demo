@@ -1,0 +1,61 @@
+version: "3"
+services:
+
+    gitea:
+        image: gitea/gitea:latest
+        restart: always
+        ports:
+            - "2222:22"
+        volumes:
+            - dbdata:/data
+            - ./gitea-app.ini:/data/gitea/conf/app.ini
+
+    drone:
+        image: drone/drone
+        restart: always
+        depends_on: 
+            - gitea
+        volumes:
+            - dbdata:/var/lib/drone/
+        environment:
+            - DRONE_OPEN=true
+            - DRONE_HOST=https://drone.softinnov.fr
+            - DRONE_SECRET=drone-workshop
+            - DRONE_ADMIN=barim
+            # Gitea Config
+            - DRONE_GITEA=true
+            - DRONE_GITEA_URL=https://git.softinnov.fr
+            - DRONE_GITEA_SKIP_VERIFY=true
+            - DRONE_NETWORK=gitea-network
+
+    drone-agent:
+        image: drone/agent
+        restart: always
+        depends_on:
+            - drone
+        volumes:
+            - /var/run/docker.sock:/var/run/docker.sock
+        environment:
+            - DRONE_SERVER=drone:9000
+            - DRONE_SECRET=drone-workshop
+            - DRONE_MAX_PROCS=3
+    proxy:
+        image: traefik
+        restart: always
+        command: --logLevel=ERROR
+        links:
+            - gitea
+            - drone
+        ports:
+            - "80:80"
+            - "443:443"
+        volumes:
+            - ./traefik/prod:/etc/traefik
+
+volumes:
+    dbdata:
+
+networks:
+  default:
+    external:
+      name: gitea-network

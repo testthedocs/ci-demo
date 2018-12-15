@@ -1,0 +1,82 @@
+version: "3"
+services:
+
+    gitea:
+        image: gitea/gitea:latest
+        restart: always
+        ports:
+            - "2222:22"
+        labels:
+            - "traefik.frontend.rule=Host:git.local"
+            - "traefik.port=3000"
+            - "traefik.backend=gitea"
+            - "traefik.default.protocol=http"
+            - "traefik.enable=true"
+
+        volumes:
+            #- dbdata:/data
+            - ./data/gitea:/data
+            - ./gitea-dev-app.ini:/data/gitea/conf/app.ini
+
+    drone:
+        image: drone/drone
+        #restart: always
+        depends_on: 
+            - gitea
+        volumes:
+            - dbdata:/var/lib/drone/
+        environment:
+            - DRONE_OPEN=true
+            - DRONE_HOST=http://drone:8000
+            - DRONE_SECRET=drone-workshop
+            - DRONE_ADMIN=sven
+            # Gitea Config
+            - DRONE_GITEA=true
+            - DRONE_GITEA_URL=http://gitea:3000
+            - DRONE_GITEA_SKIP_VERIFY=true
+            - DRONE_NETWORK=gitea-network
+        labels:
+            - "traefik.frontend.rule=Host:drone.local"
+            - "traefik.port=8000"
+            - "traefik.backend=drone"
+            - "traefik.default.protocol=http"
+            - "traefik.enable=true"
+
+    drone-agent:
+        image: drone/agent
+        #restart: always
+        depends_on:
+            - drone
+        volumes:
+            - /var/run/docker.sock:/var/run/docker.sock
+        environment:
+            - DRONE_SERVER=drone:9000
+            - DRONE_SECRET=drone-workshop
+            - DRONE_MAX_PROCS=3
+    proxy:
+        image: traefik
+        command: --logLevel=ERROR
+        links:
+            - gitea
+            - drone
+        ports:
+            - "80:80"
+            - "8080:8080"
+        labels:
+            - "traefik.frontend.rule=Host:monitor.local"
+            - "traefik.port=8080"
+            - "traefik.backend=traefik"
+            - "traefik.default.protocol=http"
+            - "traefik.enable=true"
+
+        volumes:
+            - ./traefik/staging:/etc/traefik
+            - /var/run/docker.sock:/var/run/docker.sock
+
+volumes:
+    dbdata:
+
+networks:
+  default:
+    external:
+      name: gitea-network

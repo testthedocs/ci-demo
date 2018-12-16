@@ -1,22 +1,44 @@
-ifndef VERBOSE
-.SILENT:
-endif
-.PHONY: default restart end clean start-services stop-services start stop 
+# The shell we use
+SHELL := /bin/bash
 
-default: stop-compose delete-network create-network start-compose
-restart: stop-compose default
-end: stop-compose delete-network
+# We like colors
+# From: https://coderwall.com/p/izxssa/colored-makefile-for-golang-projects
+RED=`tput setaf 1`
+GREEN=`tput setaf 2`
+RESET=`tput sgr0`
+YELLOW=`tput setaf 3`
 
-create-network:
-	echo "create the network"
-	docker network create gitea-network || echo "Can't create docker network, already created ?"
+# Add the following 'help' target to your Makefile
+# And add help text after each target name starting with '\#\#'
+.PHONY: help
+help: ## This help message
+	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | sort | awk 'BEGIN {FS = ":.*?## "}; {printf "\033[36m%-30s\033[0m %s\n", $$1, $$2}'
 
-delete-network:
-	echo "delete previous network if it exists"
-	docker network rm gitea-network || echo "Network does not exist"
+.PHONY: install
+install: stop-compose delete-network create-network start-compose ## Build setup (deletes network if exists and re-create)
 
-start-compose:
-	docker-compose -f dev-compose.yml up -d
+.PHONY: restart
+restart: stop-compose default ## Restart
 
-stop-compose:
+.PHONY: end
+end: stop-compose delete-network ## Stop compose and delete network
+
+.PHONY: create-network
+create-network: ## Create network
+	@echo "$(YELLOW)==> Create the network$(RESET)"
+	@docker network create gitea-network || @echo "$(RED)Can't create docker network, already created ?$(RESET)"
+
+.PHONY: delete-network
+delete-network: ## Delete network
+	@echo "$(YELLOW)==> Delete previous network if it exists$(RESET)"
+	@docker network rm gitea-network || @echo "$(RED)Network does not exist$(RESET)"
+
+.PHONY: start-compose
+start-compose: ## Start compose
+	@echo "$(YELLOW)==> Starting compose and creating setup$(RESET)"
+	@docker-compose -f dev-compose.yml up -d
+
+.PHONY: stop-compose
+stop-compose: ## Stop compose
+	@echo "$(YELLOW)==> Stopping compose$(RESET)"
 	docker-compose -f dev-compose.yml down

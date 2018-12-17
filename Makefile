@@ -43,6 +43,10 @@ logs: ## Show logs
 	@echo "$(YELLOW)==> Logs$(RESET)"
 	@docker-compose -f dev-compose.yml logs -f
 
+.PHONY: ps
+ps: ## Report processes
+	@docker-compose -f dev-compose.yml ps
+
 .PHONY: stop-compose
 stop-compose: ## Stop compose
 	@echo "$(YELLOW)==> Stopping compose$(RESET)"

@@ -38,6 +38,11 @@ start-compose: ## Start compose
 	@echo "$(YELLOW)==> Starting compose and creating setup$(RESET)"
 	@docker-compose -f dev-compose.yml up -d
 
+.PHONY: logs
+logs: ## Show logs
+	@echo "$(YELLOW)==> Logs$(RESET)"
+	@docker-compose -f dev-compose.yml logs -f
+
 .PHONY: stop-compose
 stop-compose: ## Stop compose
 	@echo "$(YELLOW)==> Stopping compose$(RESET)"

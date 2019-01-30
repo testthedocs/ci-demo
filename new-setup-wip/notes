@@ -1,0 +1,3 @@
+Make sure to check the webhook:
+
+It should be: http://drone:8000/hook?.....

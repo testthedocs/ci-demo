@@ -1,0 +1,57 @@
+version: "3"
+services:
+
+    gitea:
+        image: gitea/gitea:1.6.3
+        container_name: gitea
+        #restart: always
+        ports:
+            - "2222:22"
+            - "9090:3000"
+
+        volumes:
+            #- dbdata:/data
+            - ./data/gitea:/data
+            - ./gitea-dev-app.ini:/data/gitea/conf/app.ini
+
+    drone:
+        image: drone/drone:0.8
+        container_name: drone
+        #restart: always
+        ports:
+            - "9000:9000"
+            - "8080:8000"
+        depends_on:
+            - gitea
+        volumes:
+            - ./data/drone:/var/lib/drone/
+        environment:
+            - DRONE_OPEN=true
+            # The next line needs to point to port 8000
+            - DRONE_HOST=http://drone:8080
+            - DRONE_SECRET=drone-workshop
+            - DRONE_ADMIN=sven
+            # Gitea Config
+            - DRONE_GITEA=true
+            - DRONE_GITEA_URL=http://gitea:3000
+            - DRONE_GITEA_SKIP_VERIFY=true
+            - DRONE_NETWORK=gitea-network
+
+
+    drone-agent:
+        image: drone/agent:0.8
+        container_name: drone-agent
+        #restart: always
+        depends_on:
+            - drone
+        volumes:
+            - /var/run/docker.sock:/var/run/docker.sock
+        environment:
+            - DRONE_SERVER=drone:9000
+            - DRONE_SECRET=drone-workshop
+            - DRONE_MAX_PROCS=3
+
+networks:
+  default:
+    external:
+      name: gitea-network

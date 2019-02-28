@@ -23,6 +23,26 @@ logs: ## Show logs
 ps: ## Report processes
 	@docker-compose -f docker-compose.yml ps
 
+.PHONY: compose-up
+compose-up: ## Start docker-compose
+	@echo "$(YELLOW)==> Starting compose and creating setup$(RESET)"
+	@docker-compose -f docker-compose.yml up -d
+
+.PHONY: compose-down
+compose-down: ## Stop docker-compose
+	@echo "$(YELLOW)==> Stopping compose$(RESET)"
+	docker-compose -f docker-compose.yml down
+
+.PHONY: create-network
+create-network: ## Create network
+	@echo "$(YELLOW)==> Create the network$(RESET)"
+	@docker network create ci-network || @echo "$(RED)Can't create docker network, already created ?$(RESET)"
+
+.PHONY: delete-network
+delete-network: ## Delete network
+	@echo "$(YELLOW)==> Delete previous network if it exists$(RESET)"
+	@docker network rm ci-network || @echo "$(RED)Network does not exist$(RESET)"
+
 .PHONY: cert
 cert: ## Create new selfsigned SSL cert
 	@openssl req -x509 -nodes -days 365 -newkey rsa:2048 -keyout traefik/certs/cert.key -out traefik/certs/cert.crt

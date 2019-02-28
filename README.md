@@ -15,6 +15,13 @@
 - [OpenSSL](https://www.openssl.org/)
 
 
+## URL
+
+Local URLs where you can reach the services:
+
+- Traefik: [https://proxy.local/dashboard/](https://proxy.local/dashboard/)
+- Gitea: [https://git.local/](https://git.local/)
+
 ## Contribute
 
 - [Issue Tracker](https://github.com/testthedocs/ci-demo/issues)

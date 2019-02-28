@@ -1,26 +1,26 @@
 version: "3"
 services:
 
-    # gitea:
-    #     image: gitea/gitea:1.7.3
-    #     container_name: gitea
-    #     environment:
-    #       - USER_UID=1000
-    #       - USER_GID=1000
-    #     ports:
-    #         - "2222:22"
-    #         - "9090:3000"
+    gitea:
+        image: gitea/gitea:1.7.3
+        container_name: gitea
+        environment:
+          - USER_UID=1000
+          - USER_GID=1000
+        ports:
+            - "2222:22"
+            - "9090:3000"
 
-    #     labels:
-    #         - "traefik.frontend.rule=Host:git.local"
-    #         - "traefik.port=3000"
-    #         - "traefik.backend=gitea"
-    #         - "traefik.default.protocol=https"
-    #         - "traefik.enable=true"
+        labels:
+            - "traefik.frontend.rule=Host:git.local"
+            - "traefik.port=3000"
+            - "traefik.backend=gitea"
+            #- "traefik.default.protocol=http"
+            - "traefik.enable=true"
 
-    #     volumes:
-    #         - ./data/gitea:/data
-    #         - ./gitea/app.ini:/data/gitea/conf/app.ini
+        volumes:
+            - ./data/gitea:/data
+            - ./gitea/app.ini:/data/gitea/conf/app.ini
 
     proxy:
         image: traefik:latest
@@ -32,19 +32,20 @@ services:
             #- drone
         ports:
             - "80:80"     # The HTTP port
-            - "443:443"   # The Web UI (enabled by --api)
-            - "8080:8080"
+            - "443:443"   # The HTTPS port
+            - "8080:8080" # The Web UI (enabled by --api)
         labels:
+            - "traefik.enable=true"
             - "traefik.frontend.rule=Host:proxy.local"
+            - "traefik.basic.port=8080"
+            - "traefik.default.protocol=http"
             - "traefik.port=8080"
             - "traefik.backend=traefik"
-            #- "traefik.default.protocol=http"
-            - "traefik.enable=true"
 
         volumes:
             #- ./traefik/:/etc/traefik
-            - ./traefik/traefik.toml:/traefik.toml
-            - ./traefik/certs/:/certs/
+            - ./traefik/traefik.toml:/etc/traefik/traefik.toml
+            - ./traefik/certs/:/etc/traefik/certs/
             - /var/run/docker.sock:/var/run/docker.sock
 
     # drone:

@@ -22,3 +22,15 @@ logs: ## Show logs
 .PHONY: ps
 ps: ## Report processes
 	@docker-compose -f docker-compose.yml ps
+
+.PHONY: cert
+cert: ## Create new selfsigned SSL cert
+	@openssl req -x509 -nodes -days 365 -newkey rsa:2048 -keyout traefik/certs/cert.key -out traefik/certs/cert.crt
+	@chmod 644 traefik/certs/cert.crt
+	@chmod 600 traefik/certs/cert.key
+	@echo "$(YELLOW)Please note: the cert directory is ignored by git (.gitignore)!$(RESET)"
+
+.PHONY: check-cert
+check-cert: ## Read SSL cert information from CLI
+	@openssl x509 -text -noout -in traefik/certs/cert.crt
+	@echo "$(YELLOW)Please note: the cert directory is ignored by git (.gitignore)!$(RESET)"

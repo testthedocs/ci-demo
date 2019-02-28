@@ -6,7 +6,7 @@
 
 [Traefik](https://traefik.io/), [Gitea](https://gitea.io/en-us/) and [Drone](https://drone.io/) as CI test setup.
 
-**This is ONLY for local usage! Do not use this on production setups!**
+**This is ONLY for local usage! - Do not use this on production setups!**
 
 ## Dependencies
 

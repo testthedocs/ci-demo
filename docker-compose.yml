@@ -2,7 +2,7 @@ version: "3"
 services:
 
     gitea:
-        image: gitea/gitea:1.7.2
+        image: gitea/gitea:1.7.3
         container_name: gitea
         ports:
             - "2222:22"
@@ -11,6 +11,27 @@ services:
         volumes:
             - ./data/gitea:/data
             - ./gitea/app.ini:/data/gitea/conf/app.ini
+
+    proxy:
+        image: traefik:1.7.9-alpine
+        container_name: proxy
+        command: --logLevel=ERROR
+        links:
+            - gitea
+            - drone
+        ports:
+            - "80:80"
+            - "8080:8080"
+        labels:
+            - "traefik.frontend.rule=Host:proxy.local"
+            - "traefik.port=8080"
+            - "traefik.backend=traefik"
+            - "traefik.default.protocol=https"
+            - "traefik.enable=true"
+
+        volumes:
+            - ./traefik/staging:/etc/traefik
+            - /var/run/docker.sock:/var/run/docker.sock
 
     drone:
         image: drone/drone:1.0.0-rc.5

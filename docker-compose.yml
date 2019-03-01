@@ -35,59 +35,64 @@ services:
         labels:
             - "traefik.enable=true"
             - "traefik.frontend.rule=Host:proxy.local"
-            - "traefik.basic.port=8080"
+            #- "traefik.basic.port=8080"
             - "traefik.default.protocol=http"
             - "traefik.port=8080"
-            - "traefik.backend=traefik"
+            - "traefik.backend=proxy"
 
         volumes:
             - ./traefik/traefik.toml:/etc/traefik/traefik.toml/:ro
             - ./traefik/certs/:/etc/traefik/certs/:ro
             - /var/run/docker.sock:/var/run/docker.sock
 
-    # drone:
-    #     image: drone/drone:1.0.0-rc.5
-    #     container_name: drone
-    #     ports:
-    #         - "9000:9000"
-    #         - "8080:80"
-    #     depends_on:
-    #         - gitea
-    #     volumes:
-    #         - ./data/drone:/var/lib/drone/
-    #     environment:
-    #         - DRONE_OPEN=true
-    #         # The next line needs to point to port 8000
-    #         - DRONE_SERVER_HOST=drone:8080
-    #         - DRONE_SERVER_PROTO=http
-    #         - DRONE_RPC_SECRET=drone-workshop
-    #         - DRONE_ADMIN=sven
-    #         # Gitea Config
-    #         #- DRONE_GITEA=true
-    #         - DRONE_GITEA_SERVER=http://gitea:3000
-    #         - DRONE_GIT_ALWAYS_AUTH=false
-    #         - DRONE_GITEA_SKIP_VERIFY=true
-    #         #- DRONE_DATABASE_DRIVER=sqlite3
-    #         #- DRONE_RUNNER_CAPACITY=2
-    #         #- DRONE_PROVIDER=gitea
-    #         - DRONE_NETWORK=ci-network
-    #         - DRONE_LOGS_PRETTY=true
-    #         - DRONE_LOGS_COLOR=true
+    drone:
+        image: drone/drone:1.0.0-rc.5
+        container_name: drone
+        ports:
+            - "9000:9000"
+            - "8181:80"
+        labels:
+            - "traefik.frontend.rule=Host:drone.local"
+            - "traefik.port=80"
+            - "traefik.backend=drone"
+            - "traefik.enable=true"
+        depends_on:
+            - gitea
+        volumes:
+            - ./data/drone:/var/lib/drone/
+        environment:
+            - DRONE_OPEN=true
+            # The next line needs to point to port 8000
+            - DRONE_SERVER_HOST=drone:8181
+            - DRONE_SERVER_PROTO=https
+            - DRONE_RPC_SECRET=drone-workshop
+            - DRONE_ADMIN=sven
+            # Gitea Config
+            #- DRONE_GITEA=true
+            - DRONE_GITEA_SERVER=http://gitea:3000
+            - DRONE_GIT_ALWAYS_AUTH=false
+            - DRONE_GITEA_SKIP_VERIFY=true
+            #- DRONE_DATABASE_DRIVER=sqlite3
+            #- DRONE_RUNNER_CAPACITY=2
+            #- DRONE_PROVIDER=gitea
+            - DRONE_NETWORK=ci-network
+            - DRONE_LOGS_PRETTY=true
+            - DRONE_LOGS_COLOR=true
 
 
-    # drone-agent:
-    #     image: drone/agent:1.0.0-rc.5
-    #     container_name: drone-agent
-    #     depends_on:
-    #         - drone
-    #     volumes:
-    #         - /var/run/docker.sock:/var/run/docker.sock
-    #     environment:
-    #         - DRONE_SERVER=drone:9000
-    #         - DRONE_SECRET=drone-workshop
-    #         - DRONE_MAX_PROCS=3
-    #         - DRONE_RUNNER_CAPACITY=2
-    #         - DRONE_RPC_SECRET=drone-workshop
+    drone-agent:
+        image: drone/agent:1.0.0-rc.5
+        container_name: drone-agent
+        depends_on:
+            - drone
+        volumes:
+            - /var/run/docker.sock:/var/run/docker.sock
+        environment:
+            - DRONE_SERVER=drone:9000
+            - DRONE_SECRET=drone-workshop
+            - DRONE_MAX_PROCS=3
+            - DRONE_RUNNER_CAPACITY=2
+            - DRONE_RPC_SECRET=drone-workshop
 
 networks:
   default:

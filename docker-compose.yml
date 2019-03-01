@@ -15,7 +15,6 @@ services:
             - "traefik.frontend.rule=Host:git.local"
             - "traefik.port=3000"
             - "traefik.backend=gitea"
-            #- "traefik.default.protocol=http"
             - "traefik.enable=true"
 
         volumes:
@@ -25,7 +24,6 @@ services:
     proxy:
         image: traefik:latest
         container_name: proxy
-        #command: --logLevel=ERROR
         command: --api --docker  # Enables the web UI and tells Traefik to listen to docker
         #links:
             #- gitea

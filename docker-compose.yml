@@ -12,7 +12,7 @@ services:
             - "9090:3000"
 
         labels:
-            - "traefik.frontend.rule=Host:git.local"
+            - "traefik.frontend.rule=Host:git.localhost"
             - "traefik.port=3000"
             - "traefik.backend=gitea"
             - "traefik.enable=true"
@@ -34,7 +34,7 @@ services:
             - "8080:8080" # The Web UI (enabled by --api)
         labels:
             - "traefik.enable=true"
-            - "traefik.frontend.rule=Host:proxy.local"
+            - "traefik.frontend.rule=Host:proxy.localhost"
             #- "traefik.basic.port=8080"
             - "traefik.default.protocol=http"
             - "traefik.port=8080"
@@ -52,7 +52,7 @@ services:
             - "9000:9000"
             - "8181:80"
         labels:
-            - "traefik.frontend.rule=Host:drone.local"
+            - "traefik.frontend.rule=Host:drone.localhost"
             - "traefik.port=80"
             - "traefik.backend=drone"
             - "traefik.enable=true"

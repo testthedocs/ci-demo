@@ -12,15 +12,16 @@
 
 - [Docker](https://docker.com)
 - [Docker Compose](https://docs.docker.com/compose)
-- [OpenSSL](https://www.openssl.org/)
+- [Mkcert](https://github.com/FiloSottile/mkcert)
 
 
 ## URL
 
 Local URLs where you can reach the services:
 
-- Traefik: [https://proxy.local/dashboard/](https://proxy.local/dashboard/)
-- Gitea: [https://git.local/](https://git.local/)
+- Traefik: [https://proxy.localhost/dashboard/](https://proxy.localhost/dashboard/)
+- Gitea: [https://git.localhost/](https://git.localhost/)
+- Drone: [https://drone.localhost](https://drone.localhost)
 
 ## Contribute
 

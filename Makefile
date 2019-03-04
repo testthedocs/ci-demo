@@ -44,13 +44,9 @@ delete-network: ## Delete network
 	@docker network rm ci-network || @echo "$(RED)Network does not exist$(RESET)"
 
 .PHONY: cert
-cert: ## Create new selfsigned SSL cert
-	@openssl req -x509 -nodes -days 365 -newkey rsa:2048 -keyout traefik/certs/cert.key -out traefik/certs/cert.crt
-	@chmod 644 traefik/certs/cert.crt
-	@chmod 600 traefik/certs/cert.key
-	@echo "$(YELLOW)Please note: the cert directory is ignored by git (.gitignore)!$(RESET)"
+cert: ## Create SSL cert with mkkcert
 
 .PHONY: check-cert
 check-cert: ## Read SSL cert information from CLI
-	@openssl x509 -text -noout -in traefik/certs/cert.crt
+	#@openssl x509 -text -noout -in traefik/certs/cert.crt ##needs fixing
 	@echo "$(YELLOW)Please note: the cert directory is ignored by git (.gitignore)!$(RESET)"

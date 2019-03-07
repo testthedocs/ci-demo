@@ -13,8 +13,8 @@ defaultEntryPoints = ["http", "https"]
     compress = true
       [entryPoints.https.tls]
         [[entryPoints.https.tls.certificates]]
-        certFile = "/etc/traefik/certs/localhost+6.pem"
-        keyFile = "/etc/traefik/certs/localhost+6-key.pem"
+        certFile = "/etc/traefik/certs/git.local+5.pem"
+        keyFile = "/etc/traefik/certs/git.local+5-key.pem"
 
 # Enable Docker configuration backend
 [docker]

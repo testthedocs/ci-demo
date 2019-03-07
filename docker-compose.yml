@@ -49,7 +49,7 @@ services:
         image: drone/drone:1.0.0-rc.5
         container_name: drone
         ports:
-            - "9000:9000"
+            - "9000"
             - "8181:80"
         labels:
             - "traefik.frontend.rule=Host:drone.localhost"
@@ -59,13 +59,14 @@ services:
         depends_on:
             - gitea
         volumes:
-            - ./data/drone:/var/lib/drone/
+            - ./data/drone:/data
         environment:
             - DRONE_OPEN=true
             # The next line needs to point to port 8000
-            - DRONE_SERVER_HOST=drone:8181
-            - DRONE_SERVER_PROTO=https
-            - DRONE_RPC_SECRET=drone-workshop
+            - DRONE_SERVER_HOST=drone
+            #- DRONE_SERVER_PROTO=https
+            - DRONE_SERVER_PROTO=http
+            - DRONE_RPC_SECRET=ALQU2M0KdptXUdTPKcEw
             - DRONE_ADMIN=sven
             # Gitea Config
             #- DRONE_GITEA=true
@@ -73,11 +74,11 @@ services:
             - DRONE_GIT_ALWAYS_AUTH=false
             - DRONE_GITEA_SKIP_VERIFY=true
             #- DRONE_DATABASE_DRIVER=sqlite3
-            #- DRONE_RUNNER_CAPACITY=2
             #- DRONE_PROVIDER=gitea
-            - DRONE_NETWORK=ci-network
+            #- DRONE_NETWORK=ci-network
             - DRONE_LOGS_PRETTY=true
             - DRONE_LOGS_COLOR=true
+            - DRONE_DEBUG=true
 
 
     drone-agent:
@@ -88,11 +89,14 @@ services:
         volumes:
             - /var/run/docker.sock:/var/run/docker.sock
         environment:
-            - DRONE_SERVER=drone:9000
-            - DRONE_SECRET=drone-workshop
-            - DRONE_MAX_PROCS=3
+            - DRONE_RPC_SERVER=http://drone
+            - DRONE_RPC_SECRET=ALQU2M0KdptXUdTPKcEw
             - DRONE_RUNNER_CAPACITY=2
-            - DRONE_RPC_SECRET=drone-workshop
+            #- DRONE_NETWORK=ci-network
+            - DRONE_DEBUG=true
+            - DRONE_LOGS_COLOR=true
+            - DRONE_RPC_DEBUG=true
+
 
 networks:
   default:
